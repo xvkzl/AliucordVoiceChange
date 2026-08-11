@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 package net.surina.soundtouch;
+import java.nio.ByteBuffer;
 
 public final class SoundTouch
 {
@@ -22,7 +23,7 @@ public final class SoundTouch
     private native final void setPitchSemiTones(long handle, float pitch);
     
     private native final void setSpeed(long handle, float speed);
-
+    private native final void processPCM(long handle,ByteBuffer buffer,int bytes,int sampleRate,int channels);
     private native final int processFile(long handle, String inputFile, String outputFile);
 
     public native final static String getErrorString();
@@ -64,6 +65,19 @@ public final class SoundTouch
     	setSpeed(handle, speed);
     }
 
+    public void setSpeed(float speed)
+{
+    setSpeed(handle, speed);
+}
+
+    ublic void processPCM(
+       ByteBuffer buffer,
+       int bytes,
+       int sampleRate,
+       int channels
+     {
+       processPCM(handle, buffer, bytes, sampleRate, channels);
+    }
 
     public int processFile(String inputFile, String outputFile)
     {
@@ -78,11 +92,8 @@ public final class SoundTouch
     }
 
     // Constructor of the SoundTouch class. This creates a new instance of the native SoundTouch object.
-    private native final void processPCM(
-        long handle,
-        ByteBuffer buffer,
-        int bytes,
-        int sampleRate,
-        int channels
-    );
+    
+
 }
+
+
