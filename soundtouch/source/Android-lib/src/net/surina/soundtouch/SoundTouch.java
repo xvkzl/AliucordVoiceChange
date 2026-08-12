@@ -23,7 +23,13 @@ public final class SoundTouch
     private native final void setPitchSemiTones(long handle, float pitch);
     
     private native final void setSpeed(long handle, float speed);
-    private native final void processPCM(long handle,ByteBuffer buffer,int bytes,int sampleRate,int channels);
+    private native final int processPCM(
+    long handle,
+    ByteBuffer buffer,
+    int bytes,
+    int sampleRate,
+    int channels
+);
     private native final int processFile(long handle, String inputFile, String outputFile);
 
     public native final static String getErrorString();
@@ -70,13 +76,13 @@ public final class SoundTouch
     setSpeed(handle, speed);
 }
 
-    ublic void processPCM(
-       ByteBuffer buffer,
-       int bytes,
-       int sampleRate,
-       int channels
-     {
-       processPCM(handle, buffer, bytes, sampleRate, channels);
+    public int processPCM(
+        ByteBuffer buffer,
+        int bytes,
+        int sampleRate,
+        int channels
+    ) {
+        return processPCM(handle, buffer, bytes, sampleRate, channels);
     }
 
     public int processFile(String inputFile, String outputFile)

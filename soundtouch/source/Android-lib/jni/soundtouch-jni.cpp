@@ -259,26 +259,27 @@ extern "C" DLL_PUBLIC int Java_net_surina_soundtouch_SoundTouch_processFile(JNIE
 
 // ADDED PCM Processing function to allow processing of PCM data directly from Java
 
-extern "C" DLL_PUBLIC void
+extern "C" DLL_PUBLIC jint
 Java_net_surina_soundtouch_SoundTouch_processPCM(
-        JNIEnv* env,
-        jobject thiz,
-        jlong handle,
-        jobject pcmBuffer,
-        jint bytes,
-        jint sampleRate,
-        jint channels)
+    JNIEnv* env,
+    jobject thiz,
+    jlong handle,
+    jobject pcmBuffer,
+    jint bytes,
+    jint sampleRate,
+    jint channels)
 {
-    SoundTouch* ptr = (SoundTouch*)handle;
+    SoundTouch* ptr = reinterpret_cast<SoundTouch*>(handle);
 
-    if (ptr == nullptr || pcmBuffer == nullptr || bytes <= 0) {
-        return;
+    if (ptr == nullptr || pcmBuffer == nullptr ||
+        bytes <= 0 || sampleRate <= 0 || channels <= 0) {
+        return 0;
     }
 
     void* buffer = env->GetDirectBufferAddress(pcmBuffer);
 
     if (buffer == nullptr) {
-        return;
+        return 0;
     }
 
     ptr->setSampleRate(sampleRate);
@@ -287,10 +288,19 @@ Java_net_surina_soundtouch_SoundTouch_processPCM(
     SAMPLETYPE* samples =
         static_cast<SAMPLETYPE*>(buffer);
 
-    int sampleCount = bytes / sizeof(SAMPLETYPE);
-    int frames = sampleCount / channels;
+    const int samplesPerChannel =
+        bytes / static_cast<int>(sizeof(SAMPLETYPE) * channels);
 
-    ptr->putSamples(samples, frames);
+    if (samplesPerChannel <= 0) {
+        return 0;
+    }
 
-    ptr->receiveSamples(samples, frames);
+    ptr->putSamples(samples, samplesPerChannel);
+
+    const uint numReceived =
+        ptr->receiveSamples(samples, samplesPerChannel);
+
+    return static_cast<jint>(
+        numReceived * channels * sizeof(SAMPLETYPE)
+    );
 }
